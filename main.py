@@ -2,12 +2,12 @@ import sys
 import pygame as pg
 import random as r
 import game_logic as gl
+import sprite_logic as spl
 
-pg.init()  # инициализация библиотеки
+pg.init()
 
-auto = False
 
-# Config Variables
+
 W = 1280
 H = 720
 FPS = 60
@@ -16,30 +16,33 @@ speed = 10
 player_speed = 0
 object_speed = speed
 
-# scores
+screen = pg.display.set_mode((W, H))  # создаем экран игры размером 1280x720
+pg.display.set_caption('Catch an Apple Game')
+
 score, miss = 0, 0
-pg.font.init()  # инициализация механизма отображения шрифтов
+pg.font.init()
 score_font = pg.font.SysFont('Arial', 32)
 
-# COLORS
 GRAY = (237, 237, 237)
 RED = (214, 32, 32)
 BROWN = (128, 97, 61)
 
-# Game Objects
-player = pg.Rect(0, H - 30, 100, 20)  # x, y, width, height
-player.centerx = W // 2  # автоматически определить центр игрока по центру экрана
+
+player = spl.sprite(spl.sprites['pl_sprite'], 125, 100).get_rect()
+player_img = spl.sprite(spl.sprites['pl_sprite'], 125, 146.5)
+player.y = H - 60
+
+
+player.centerx = W // 2
 apple = pg.Rect(r.randint(40, W - 40), -50, 40, 40)
 
-# Screen Config
-screen = pg.display.set_mode((W, H))  # создаем экран игры размером 1280x720
-pg.display.set_caption('Catch an Apple Game')  # название игры в окне игры
 
 # Game loop
 game_over = False
 while not game_over:  # бесконечный цикл для работы игры
     if miss >= 3:
         game_over = True
+
 
     clock.tick(FPS)
     for event in pg.event.get():  # pg.event.get() - обработчик событий в игре
@@ -48,7 +51,7 @@ while not game_over:  # бесконечный цикл для работы иг
             sys.exit()
 
     screen.fill(GRAY)  # зальем экран серым цветом
-    pg.draw.rect(screen, BROWN, player)  # рисую игрового персонажа
+    screen.blit(player_img, player)
     pg.draw.ellipse(screen, RED, apple)  # рисую яблоко
     score_text = score_font.render(f'Score: {score}', True, (107, 237, 185))
     miss_text = score_font.render(f'Miss: {miss}', True, (107, 237, 185))
@@ -62,19 +65,12 @@ while not game_over:  # бесконечный цикл для работы иг
         miss += 1
     elif apple_catch == 'catch':
         score += 10
-
-    if not auto:
-        keys = pg.key.get_pressed()  # отслеживаю нажатие кнопок
-        if keys[pg.K_LEFT]:
-            player_speed = -speed
-        elif keys[pg.K_RIGHT]:
-            player_speed = speed
-        else:
-            player_speed = 0
+    keys = pg.key.get_pressed()  # отслеживаю нажатие кнопок
+    if keys[pg.K_LEFT]:
+        player_speed = -speed
+    elif keys[pg.K_RIGHT]:
+        player_speed = speed
     else:
-        if apple.x > player.x:
-            player.x += 5
-        elif apple.x < player.x:
-            player.x -= 5
+        player_speed = 0
 
     gl.player_motion(player, player_speed, W)
