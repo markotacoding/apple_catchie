@@ -9,5 +9,5 @@ def sprite_init(image_source, size_x, size_y):
 
 
 sprites = {
-    'pl_sprite': 'Game sprites/player.jpg',
+    'pl_sprite': 'main files/Game sprites/player.jpg',
 }
